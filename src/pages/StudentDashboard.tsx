@@ -1,240 +1,267 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  BookOpen, 
   Trophy, 
   Target, 
+  Flame, 
   Star, 
-  Zap, 
-  FlaskConical,
-  Download,
-  Wifi,
-  WifiOff,
-  Users,
+  Users, 
+  BookOpen, 
   Award,
-  Clock
+  TrendingUp,
+  Calendar,
+  MessageSquare,
+  Play,
+  Download,
+  Settings,
+  LogOut
 } from "lucide-react";
-import { VirtualLab } from "@/components/VirtualLab";
 import { StudentSidebar } from "@/components/StudentSidebar";
+import { VirtualLab } from "@/components/VirtualLab";
+import { QuizComponent } from "@/components/QuizComponent";
+import { useAuth } from "@/hooks/useAuth";
+
+// Hardcoded student data for gamification
+const mockStudents = [
+  { id: 1, name: "Aman Kumar", points: 2850, avatar: "AK", streak: 15, badges: 12, rank: 1 },
+  { id: 2, name: "Priya Sharma", points: 2720, avatar: "PS", streak: 22, badges: 10, rank: 2 },
+  { id: 3, name: "Rahul Singh", points: 2650, avatar: "RS", streak: 8, badges: 9, rank: 3 },
+  { id: 4, name: "Neha Patel", points: 2580, avatar: "NP", streak: 18, badges: 11, rank: 4 },
+  { id: 5, name: "Arjun Verma", points: 2400, avatar: "AV", streak: 12, badges: 8, rank: 5 },
+];
+
+const studentBadges = [
+  { name: "Chemistry Explorer", icon: "🧪", earned: true, points: 100 },
+  { name: "Lab Master", icon: "⚗️", earned: true, points: 200 },
+  { name: "Quiz Champion", icon: "🏆", earned: true, points: 150 },
+  { name: "Streak Master", icon: "🔥", earned: true, points: 300 },
+  { name: "Study Buddy", icon: "👥", earned: false, points: 250 },
+  { name: "Course Completer", icon: "✅", earned: false, points: 400 },
+];
+
+const courses = [
+  { id: 1, title: "Chemistry Fundamentals", progress: 75, totalLessons: 20, completedLessons: 15, category: "Science" },
+  { id: 2, title: "Mathematics Basics", progress: 45, totalLessons: 25, completedLessons: 11, category: "Math" },
+  { id: 3, title: "Physics Introduction", progress: 30, totalLessons: 18, completedLessons: 5, category: "Science" },
+  { id: 4, title: "Environmental Science", progress: 90, totalLessons: 15, completedLessons: 13, category: "Science" },
+];
 
 const StudentDashboard = () => {
   const [currentView, setCurrentView] = useState("dashboard");
-  const [isOffline, setIsOffline] = useState(false);
-  const [totalPoints] = useState(484);
+  const { signOut, profile } = useAuth();
+  const currentStudent = mockStudents[0]; // Current user
 
-  const courses = [
-    {
-      id: 1,
-      title: "Programming 101",
-      instructor: "Lawrence Turton",
-      progress: 75,
-      points: 50,
-      color: "gamify-green",
-      image: "🌱"
-    },
-    {
-      id: 2,
-      title: "HTML5 and CSS3 Fundamentals",
-      instructor: "Steve Rice eLearning",
-      progress: 60,
-      points: 45,
-      color: "gamify-orange",
-      image: "💻"
-    },
-    {
-      id: 3,
-      title: "Microsoft Excel Pivot Tables",
-      instructor: "Abel Joesuran",
-      progress: 90,
-      points: 70,
-      color: "gamify-teal",
-      image: "📊"
-    },
-    {
-      id: 4,
-      title: "Code Your First Game",
-      instructor: "Chris DeLeon",
-      progress: 30,
-      points: 25,
-      color: "gamify-purple",
-      image: "🎮"
-    }
-  ];
-
-  const achievements = [
-    { name: "First Course", icon: "🏆", color: "gamify-orange" },
-    { name: "Quiz Master", icon: "🧠", color: "gamify-purple" },
-    { name: "Lab Expert", icon: "🔬", color: "gamify-teal" },
-    { name: "Streak Hero", icon: "⚡", color: "gamify-green" },
-  ];
-
-  const recentActivity = [
-    { action: "Completed Quiz: Chemical Reactions", time: "2 hours ago", points: 20 },
-    { action: "Started Virtual Lab: Acid-Base Reactions", time: "1 day ago", points: 0 },
-    { action: "Earned Achievement: Lab Expert", time: "2 days ago", points: 50 },
-  ];
-
-  const renderDashboardContent = () => (
+  const renderDashboard = () => (
     <div className="space-y-6">
-      {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-gamify text-white border-0 shadow-card">
+      {/* Welcome & Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Welcome Card */}
+        <Card className="lg:col-span-2 bg-gradient-to-r from-primary to-primary-dark text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/90 text-sm">Total Points</p>
-                <p className="text-2xl font-bold">{totalPoints}</p>
+                <h2 className="text-2xl font-bold mb-2">Welcome back, {profile?.full_name || "Student"}! 👋</h2>
+                <p className="text-white/90">You're doing great! Keep up the momentum.</p>
+                <div className="flex items-center mt-4 space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Flame className="h-5 w-5 text-gamify-orange" />
+                    <span>{currentStudent.streak} day streak</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Trophy className="h-5 w-5 text-gamify-gold" />
+                    <span>Rank #{currentStudent.rank}</span>
+                  </div>
+                </div>
               </div>
-              <Trophy className="h-8 w-8 text-white/90" />
+              <Avatar className="h-20 w-20 border-4 border-white/20">
+                <AvatarImage src="/placeholder.svg" />
+                <AvatarFallback className="text-2xl bg-white/20">
+                  {currentStudent.avatar}
+                </AvatarFallback>
+              </Avatar>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-success text-white border-0 shadow-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/90 text-sm">Courses</p>
-                <p className="text-2xl font-bold">4</p>
-              </div>
-              <BookOpen className="h-8 w-8 text-white/90" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-lab text-white border-0 shadow-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/90 text-sm">Lab Sessions</p>
-                <p className="text-2xl font-bold">12</p>
-              </div>
-              <FlaskConical className="h-8 w-8 text-white/90" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-muted-foreground text-sm">Current Streak</p>
-                <p className="text-2xl font-bold text-foreground">7 days</p>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Zap className="h-5 w-5 text-gamify-orange" />
-                <span className="text-gamify-orange font-semibold">Active</span>
-              </div>
+        {/* Points Card */}
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center space-x-2">
+              <Star className="h-5 w-5 text-gamify-gold" />
+              <span>Total Points</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="text-3xl font-bold text-primary mb-2">{currentStudent.points.toLocaleString()}</div>
+            <div className="flex items-center justify-center space-x-1 text-green-600">
+              <TrendingUp className="h-4 w-4" />
+              <span className="text-sm">+125 this week</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Progress Section */}
-      <Card className="shadow-card">
+      {/* Learning Progress */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Current Courses</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {courses.slice(0, 3).map((course) => (
+              <div key={course.id} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-medium">{course.title}</h4>
+                  <Badge variant="secondary">{course.progress}%</Badge>
+                </div>
+                <Progress value={course.progress} className="h-2" />
+                <p className="text-sm text-muted-foreground">
+                  {course.completedLessons}/{course.totalLessons} lessons completed
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Badges</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              {studentBadges.filter(badge => badge.earned).slice(0, 4).map((badge, index) => (
+                <div key={index} className="text-center p-3 bg-accent rounded-lg">
+                  <div className="text-2xl mb-2">{badge.icon}</div>
+                  <p className="font-medium text-sm">{badge.name}</p>
+                  <p className="text-xs text-muted-foreground">+{badge.points} pts</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Leaderboard */}
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Target className="h-5 w-5 text-gamify-purple" />
-            <span>Weekly Learning Goals</span>
+            <Users className="h-5 w-5" />
+            <span>Class Leaderboard</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Study 5 hours this week</span>
-                <span>3.5/5 hours</span>
+          <div className="space-y-3">
+            {mockStudents.slice(0, 5).map((student, index) => (
+              <div key={student.id} className={`flex items-center justify-between p-3 rounded-lg ${student.id === currentStudent.id ? 'bg-primary/10 border border-primary/20' : 'bg-accent'}`}>
+                <div className="flex items-center space-x-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${index === 0 ? 'bg-gamify-gold text-white' : index === 1 ? 'bg-gray-400 text-white' : index === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200'}`}>
+                    {index + 1}
+                  </div>
+                  <Avatar>
+                    <AvatarFallback>{student.avatar}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{student.name} {student.id === currentStudent.id && '(You)'}</p>
+                    <p className="text-sm text-muted-foreground">{student.points.toLocaleString()} points</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-1">
+                    <Flame className="h-4 w-4 text-gamify-orange" />
+                    <span className="text-sm">{student.streak}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Award className="h-4 w-4 text-gamify-gold" />
+                    <span className="text-sm">{student.badges}</span>
+                  </div>
+                </div>
               </div>
-              <Progress value={70} className="h-2" />
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Complete 3 quizzes</span>
-                <span>2/3 complete</span>
-              </div>
-              <Progress value={67} className="h-2" />
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
 
-      {/* Course Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  const renderCourses = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <Card key={course.id} className="shadow-card hover:shadow-hover transition-all duration-300 group cursor-pointer">
-            <CardContent className="p-0">
-              <div className={`h-32 bg-${course.color} rounded-t-lg flex items-center justify-center text-4xl`}>
-                {course.image}
-              </div>
-              <div className="p-4 space-y-3">
-                <h3 className="font-semibold text-sm leading-tight">{course.title}</h3>
-                <p className="text-xs text-muted-foreground">{course.instructor}</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span>{course.progress}% Complete</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {course.points} pts
-                    </Badge>
-                  </div>
-                  <Progress value={course.progress} className="h-1" />
+          <Card key={course.id} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-lg">{course.title}</CardTitle>
+                  <Badge variant="outline" className="mt-2">{course.category}</Badge>
                 </div>
-                <Button size="sm" className="w-full">Continue Course</Button>
+                <Button size="sm" className="shrink-0">
+                  <Play className="h-4 w-4 mr-1" />
+                  Continue
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Progress value={course.progress} className="h-2 mb-3" />
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>{course.completedLessons}/{course.totalLessons} lessons</span>
+                <span>{course.progress}% complete</span>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+    </div>
+  );
 
-      {/* Recent Activity & Achievements */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Clock className="h-5 w-5 text-gamify-teal" />
-              <span>Recent Activity</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.time}</p>
-                  </div>
-                  {activity.points > 0 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{activity.points} pts
-                    </Badge>
-                  )}
-                </div>
-              ))}
-            </div>
+  const renderRewards = () => (
+    <div className="space-y-6">
+      {/* Points Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="text-center">
+          <CardContent className="p-6">
+            <Star className="h-8 w-8 text-gamify-gold mx-auto mb-2" />
+            <div className="text-2xl font-bold">{currentStudent.points.toLocaleString()}</div>
+            <p className="text-muted-foreground">Total Points</p>
           </CardContent>
         </Card>
-
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Award className="h-5 w-5 text-gamify-orange" />
-              <span>Achievements</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              {achievements.map((achievement, index) => (
-                <div key={index} className={`bg-${achievement.color} rounded-lg p-3 text-center text-white`}>
-                  <div className="text-2xl mb-1">{achievement.icon}</div>
-                  <p className="text-xs font-medium">{achievement.name}</p>
-                </div>
-              ))}
-            </div>
+        <Card className="text-center">
+          <CardContent className="p-6">
+            <Award className="h-8 w-8 text-gamify-purple mx-auto mb-2" />
+            <div className="text-2xl font-bold">{studentBadges.filter(b => b.earned).length}</div>
+            <p className="text-muted-foreground">Badges Earned</p>
+          </CardContent>
+        </Card>
+        <Card className="text-center">
+          <CardContent className="p-6">
+            <Flame className="h-8 w-8 text-gamify-orange mx-auto mb-2" />
+            <div className="text-2xl font-bold">{currentStudent.streak}</div>
+            <p className="text-muted-foreground">Day Streak</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* All Badges */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Badge Collection</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {studentBadges.map((badge, index) => (
+              <div key={index} className={`text-center p-4 rounded-lg border-2 ${badge.earned ? 'bg-accent border-primary/20' : 'bg-gray-50 border-gray-200 opacity-50'}`}>
+                <div className="text-3xl mb-2">{badge.icon}</div>
+                <p className="font-medium text-sm">{badge.name}</p>
+                <p className="text-xs text-muted-foreground">{badge.points} points</p>
+                {badge.earned && <Badge className="mt-2" variant="secondary">Earned!</Badge>}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 
@@ -248,44 +275,39 @@ const StudentDashboard = () => {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {currentView === "dashboard" && "Student Dashboard"}
-                {currentView === "lab" && "Virtual Laboratory"}
+                {currentView === "dashboard" && "Dashboard"}
                 {currentView === "courses" && "My Courses"}
-                {currentView === "rewards" && "Rewards & Progress"}
+                {currentView === "virtuallab" && "Virtual Laboratory"}
+                {currentView === "rewards" && "Rewards & Badges"}
+                {currentView === "quiz" && "Interactive Quiz"}
               </h1>
               <p className="text-muted-foreground">
-                {currentView === "dashboard" && "Track your learning progress and achievements"}
-                {currentView === "lab" && "Conduct virtual experiments safely"}
+                {currentView === "dashboard" && `Welcome back, ${profile?.full_name || "Student"}! Ready to learn?`}
                 {currentView === "courses" && "Continue your learning journey"}
-                {currentView === "rewards" && "View your points and achievements"}
+                {currentView === "virtuallab" && "Conduct experiments safely in our virtual environment"}
+                {currentView === "rewards" && "Track your achievements and collect badges"}
+                {currentView === "quiz" && "Test your knowledge with interactive quizzes"}
               </p>
             </div>
             
             <div className="flex items-center space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsOffline(!isOffline)}
-                className={isOffline ? "text-destructive" : "text-success"}
-              >
-                {isOffline ? <WifiOff className="h-4 w-4 mr-2" /> : <Wifi className="h-4 w-4 mr-2" />}
-                {isOffline ? "Offline Mode" : "Online"}
+              <Button variant="outline" size="sm">
+                <Calendar className="h-4 w-4 mr-2" />
+                Schedule
               </Button>
-              
-              {isOffline && (
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Content
-                </Button>
-              )}
+              <Button variant="outline" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
             </div>
           </div>
 
           {/* Content */}
-          {currentView === "dashboard" && renderDashboardContent()}
-          {currentView === "lab" && <VirtualLab />}
-          {currentView === "courses" && renderDashboardContent()}
-          {currentView === "rewards" && renderDashboardContent()}
+          {currentView === "dashboard" && renderDashboard()}
+          {currentView === "courses" && renderCourses()}
+          {currentView === "virtuallab" && <VirtualLab />}
+          {currentView === "rewards" && renderRewards()}
+          {currentView === "quiz" && <QuizComponent />}
         </main>
       </div>
     </div>

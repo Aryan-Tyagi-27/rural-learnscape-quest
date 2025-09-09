@@ -1,16 +1,13 @@
-import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
-  FlaskConical, 
   BookOpen, 
   Trophy, 
-  Target, 
-  Users, 
-  LogOut,
-  User
+  FlaskConical, 
+  Brain
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
 
 interface StudentSidebarProps {
   currentView: string;
@@ -19,74 +16,73 @@ interface StudentSidebarProps {
 
 export const StudentSidebar = ({ currentView, setCurrentView }: StudentSidebarProps) => {
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "courses", label: "My Courses", icon: BookOpen },
-    { id: "lab", label: "Virtual Lab", icon: FlaskConical },
-    { id: "quizzes", label: "Quizzes", icon: Target },
-    { id: "rewards", label: "Rewards", icon: Trophy },
-    { id: "classmates", label: "Classmates", icon: Users },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      color: "text-gamify-purple"
+    },
+    {
+      id: "courses",
+      label: "My Courses",
+      icon: BookOpen,
+      color: "text-gamify-teal"
+    },
+    {
+      id: "virtuallab",
+      label: "Virtual Lab",
+      icon: FlaskConical,
+      color: "text-gamify-green"
+    },
+    {
+      id: "quiz",
+      label: "Quizzes",
+      icon: Brain,
+      color: "text-gamify-orange"
+    },
+    {
+      id: "rewards",
+      label: "Rewards",
+      icon: Trophy,
+      color: "text-gamify-gold"
+    },
   ];
 
   return (
-    <div className="w-80 bg-sidebar-dark text-white min-h-screen flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-white/10">
-        <div className="text-center mb-6">
-          <h1 className="text-lg font-bold text-white/90 tracking-wider">
-            STUDENT PORTAL
-          </h1>
-        </div>
-        
-        {/* User Profile */}
-        <div className="flex flex-col items-center space-y-3">
-          <Avatar className="w-16 h-16 bg-white">
-            <AvatarFallback className="text-sidebar-dark text-xl font-bold">
-              <User className="h-8 w-8" />
-            </AvatarFallback>
-          </Avatar>
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-white">Aman</h2>
-            <p className="text-sm text-white/70">ak88xxxx@kiet.edu</p>
+    <Card className="w-64 h-screen rounded-none border-r shadow-sidebar">
+      <div className="p-6">
+        {/* Logo */}
+        <div className="flex items-center space-x-3 mb-8">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+            <FlaskConical className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="font-bold text-lg">ShikshaSetu</h1>
+            <p className="text-xs text-muted-foreground">Student Portal</p>
           </div>
         </div>
-      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-6">
-        <div className="space-y-2 px-4">
+        {/* Navigation */}
+        <nav className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentView === item.id;
-            
             return (
               <Button
                 key={item.id}
-                variant="ghost"
+                variant={currentView === item.id ? "secondary" : "ghost"}
                 className={cn(
-                  "w-full justify-start text-left p-4 h-auto hover:bg-white/10 transition-colors",
-                  isActive && "bg-white/20 text-white font-semibold"
+                  "w-full justify-start h-12 px-4",
+                  currentView === item.id && "bg-primary/10 text-primary border-primary/20"
                 )}
                 onClick={() => setCurrentView(item.id)}
               >
-                <Icon className="mr-3 h-5 w-5" />
-                <span>{item.label}</span>
+                <Icon className={cn("mr-3 h-5 w-5", item.color)} />
+                {item.label}
               </Button>
             );
           })}
-        </div>
-      </nav>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-white/10">
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-left p-4 h-auto hover:bg-white/10 text-white/80 hover:text-white"
-          onClick={() => window.location.href = "/"}
-        >
-          <LogOut className="mr-3 h-5 w-5" />
-          <span>Log Out</span>
-        </Button>
+        </nav>
       </div>
-    </div>
+    </Card>
   );
 };
