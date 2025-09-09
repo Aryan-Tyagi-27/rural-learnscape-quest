@@ -14,7 +14,268 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      badges: {
+        Row: {
+          category: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          points_required: number | null
+        }
+        Insert: {
+          category?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          points_required?: number | null
+        }
+        Update: {
+          category?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          points_required?: number | null
+        }
+        Relationships: []
+      }
+      courses: {
+        Row: {
+          category: string
+          content: Json | null
+          created_at: string
+          description: string | null
+          difficulty_level: string
+          id: string
+          teacher_id: string | null
+          title: string
+        }
+        Insert: {
+          category: string
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          difficulty_level: string
+          id?: string
+          teacher_id?: string | null
+          title: string
+        }
+        Update: {
+          category?: string
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string
+          id?: string
+          teacher_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          answers: Json | null
+          completed_at: string | null
+          id: string
+          quiz_id: string | null
+          score: number | null
+          student_id: string | null
+        }
+        Insert: {
+          answers?: Json | null
+          completed_at?: string | null
+          id?: string
+          quiz_id?: string | null
+          score?: number | null
+          student_id?: string | null
+        }
+        Update: {
+          answers?: Json | null
+          completed_at?: string | null
+          id?: string
+          quiz_id?: string | null
+          score?: number | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_attempts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      quizzes: {
+        Row: {
+          course_id: string | null
+          created_at: string | null
+          id: string
+          questions: Json
+          time_limit: number | null
+          title: string
+          total_points: number | null
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string | null
+          id?: string
+          questions: Json
+          time_limit?: number | null
+          title: string
+          total_points?: number | null
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string | null
+          id?: string
+          questions?: Json
+          time_limit?: number | null
+          title?: string
+          total_points?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quizzes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_badges: {
+        Row: {
+          badge_id: string | null
+          earned_at: string | null
+          id: string
+          student_id: string | null
+        }
+        Insert: {
+          badge_id?: string | null
+          earned_at?: string | null
+          id?: string
+          student_id?: string | null
+        }
+        Update: {
+          badge_id?: string | null
+          earned_at?: string | null
+          id?: string
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_badges_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      student_progress: {
+        Row: {
+          completed: boolean | null
+          course_id: string | null
+          id: string
+          last_accessed: string | null
+          points_earned: number | null
+          progress_percentage: number | null
+          student_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          course_id?: string | null
+          id?: string
+          last_accessed?: string | null
+          points_earned?: number | null
+          progress_percentage?: number | null
+          student_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          course_id?: string | null
+          id?: string
+          last_accessed?: string | null
+          points_earned?: number | null
+          progress_percentage?: number | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
