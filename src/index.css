@@ -2,41 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Rural Gamified Learning Platform Design System - All colors MUST be HSL */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Educational brand colors */
+    --background: 240 100% 99%;
+    --foreground: 223 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 223 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 223 47% 11%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Deep educational blue */
+    --primary: 223 47% 11%;
+    --primary-foreground: 240 100% 99%;
+    
+    /* Sidebar colors */
+    --sidebar-dark: 225 39% 21%;
+    --sidebar-darker: 225 55% 15%;
+    
+    /* Gamification colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --info: 200 98% 39%;
+    --info-foreground: 0 0% 100%;
+    
+    --gamify-orange: 25 95% 53%;
+    --gamify-green: 142 69% 58%;
+    --gamify-purple: 259 94% 51%;
+    --gamify-teal: 172 66% 50%;
+    --gamify-pink: 326 78% 68%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 223 47% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 223 47% 11%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 223 47% 11%;
 
-    --radius: 0.5rem;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--sidebar-dark)));
+    --gradient-gamify: linear-gradient(135deg, hsl(var(--gamify-orange)), hsl(var(--gamify-pink)));
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--gamify-green)));
+    --gradient-lab: linear-gradient(135deg, hsl(var(--info)), hsl(var(--gamify-teal)));
+
+    /* Shadows */
+    --shadow-card: 0 4px 12px hsla(223, 47%, 11%, 0.1);
+    --shadow-hover: 0 8px 25px hsla(223, 47%, 11%, 0.15);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 

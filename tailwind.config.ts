@@ -47,16 +47,43 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Educational gamified colors
         sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+          dark: "hsl(var(--sidebar-dark))",
+          darker: "hsl(var(--sidebar-darker))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
+        gamify: {
+          orange: "hsl(var(--gamify-orange))",
+          green: "hsl(var(--gamify-green))",
+          purple: "hsl(var(--gamify-purple))",
+          teal: "hsl(var(--gamify-teal))",
+          pink: "hsl(var(--gamify-pink))",
+        },
+      },
+      backgroundImage: {
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-gamify': 'var(--gradient-gamify)',
+        'gradient-success': 'var(--gradient-success)',
+        'gradient-lab': 'var(--gradient-lab)',
+      },
+      boxShadow: {
+        'card': 'var(--shadow-card)',
+        'hover': 'var(--shadow-hover)',
+      },
+      transitionTimingFunction: {
+        'smooth': 'var(--transition-smooth)',
       },
       borderRadius: {
         lg: "var(--radius)",
