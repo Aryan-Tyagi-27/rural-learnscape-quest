@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { DataTable } from "./DataTable";
+import { toast } from "sonner";
 import { 
   User, 
   TrendingUp, 
@@ -20,6 +22,15 @@ interface StudentAnalyticsProps {
 }
 
 export const StudentAnalytics = ({ studentId }: StudentAnalyticsProps) => {
+  const tableColumns = [
+    { key: 'name', label: 'Student Name', sortable: true },
+    { key: 'totalPoints', label: 'Total Points', sortable: true },
+    { key: 'avgScore', label: 'Avg Score (%)', sortable: true },
+    { key: 'streak', label: 'Streak (days)', sortable: true },
+    { key: 'hoursStudied', label: 'Hours', sortable: true },
+    { key: 'badges', label: 'Badges', sortable: true },
+  ];
+
   const students = [
     {
       id: 1,
@@ -240,40 +251,72 @@ export const StudentAnalytics = ({ studentId }: StudentAnalyticsProps) => {
         </CardContent>
       </Card>
 
-      {/* All Students Quick View */}
+      {/* All Students Data Table */}
       <Card className="shadow-card">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <User className="h-5 w-5 text-gamify-orange" />
-            <span>All Students Overview</span>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <User className="h-5 w-5 text-gamify-orange" />
+              <span>All Students Overview</span>
+            </div>
+            <Button 
+              size="sm"
+              onClick={() => toast.success('Student management panel opened!')}
+            >
+              Manage Students
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {students.map((student) => (
-              <div key={student.id} className="p-4 border border-border rounded-lg hover:bg-accent transition-colors cursor-pointer">
-                <div className="flex items-center space-x-3 mb-3">
-                  <span className="text-2xl">{student.avatar}</span>
-                  <div>
-                    <h4 className="font-medium text-sm">{student.name}</h4>
-                    <p className="text-xs text-muted-foreground">{student.totalPoints} points</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-muted-foreground">Avg Score:</span>
-                    <span className="ml-1 font-medium">{student.avgScore}%</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Streak:</span>
-                    <span className="ml-1 font-medium">{student.streak} days</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <DataTable 
+            columns={tableColumns}
+            data={students}
+            onRowClick={(student) => toast.info(`Viewing details for ${student.name}`)}
+            searchable={true}
+            exportable={true}
+          />
         </CardContent>
       </Card>
+
+      {/* Student Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {students.map((student) => (
+          <Card key={student.id} className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group animate-fade-in">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <span className="text-3xl group-hover:scale-110 transition-transform">{student.avatar}</span>
+                <div className="flex-1">
+                  <h4 className="font-medium group-hover:text-primary transition-colors">{student.name}</h4>
+                  <p className="text-xs text-muted-foreground">{student.totalPoints} points</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="text-center p-2 bg-accent rounded">
+                    <p className="text-muted-foreground text-xs">Score</p>
+                    <p className="font-bold text-gamify-teal">{student.avgScore}%</p>
+                  </div>
+                  <div className="text-center p-2 bg-accent rounded">
+                    <p className="text-muted-foreground text-xs">Streak</p>
+                    <p className="font-bold text-gamify-orange">{student.streak}d</p>
+                  </div>
+                  <div className="text-center p-2 bg-accent rounded">
+                    <p className="text-muted-foreground text-xs">Hours</p>
+                    <p className="font-bold text-gamify-purple">{student.hoursStudied}h</p>
+                  </div>
+                  <div className="text-center p-2 bg-accent rounded">
+                    <p className="text-muted-foreground text-xs">Badges</p>
+                    <p className="font-bold text-gamify-green">{student.badges}</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="w-full group-hover:bg-primary group-hover:text-white transition-colors">
+                  View Profile
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };

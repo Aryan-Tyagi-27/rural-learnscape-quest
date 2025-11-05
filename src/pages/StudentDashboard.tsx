@@ -23,7 +23,11 @@ import {
 import { StudentSidebar } from "@/components/StudentSidebar";
 import { VirtualLab } from "@/components/VirtualLab";
 import { QuizComponent } from "@/components/QuizComponent";
+import { GamificationTracker } from "@/components/GamificationTracker";
+import { EducationalReels } from "@/components/EducationalReels";
+import { InteractiveLabs } from "@/components/InteractiveLabs";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 // Hardcoded student data for gamification
 const mockStudents = [
@@ -277,16 +281,20 @@ const StudentDashboard = () => {
               <h1 className="text-2xl font-bold text-foreground">
                 {currentView === "dashboard" && "Dashboard"}
                 {currentView === "courses" && "My Courses"}
-                {currentView === "virtuallab" && "Virtual Laboratory"}
+                {currentView === "virtuallab" && "Interactive Labs"}
                 {currentView === "rewards" && "Rewards & Badges"}
                 {currentView === "quiz" && "Interactive Quiz"}
+                {currentView === "gamification" && "Gamification Tracker"}
+                {currentView === "reels" && "Educational Reels"}
               </h1>
               <p className="text-muted-foreground">
                 {currentView === "dashboard" && `Welcome back, ${profile?.full_name || "Student"}! Ready to learn?`}
                 {currentView === "courses" && "Continue your learning journey"}
-                {currentView === "virtuallab" && "Conduct experiments safely in our virtual environment"}
+                {currentView === "virtuallab" && "Conduct experiments safely in our interactive labs"}
                 {currentView === "rewards" && "Track your achievements and collect badges"}
                 {currentView === "quiz" && "Test your knowledge with interactive quizzes"}
+                {currentView === "gamification" && "Track your progress and achievements"}
+                {currentView === "reels" && "Learn through engaging educational shorts"}
               </p>
             </div>
             
@@ -305,9 +313,11 @@ const StudentDashboard = () => {
           {/* Content */}
           {currentView === "dashboard" && renderDashboard()}
           {currentView === "courses" && renderCourses()}
-          {currentView === "virtuallab" && <VirtualLab />}
+          {currentView === "virtuallab" && <InteractiveLabs />}
           {currentView === "rewards" && renderRewards()}
           {currentView === "quiz" && <QuizComponent />}
+          {currentView === "gamification" && <GamificationTracker />}
+          {currentView === "reels" && <EducationalReels />}
         </main>
       </div>
     </div>

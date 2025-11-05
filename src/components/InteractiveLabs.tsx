@@ -114,11 +114,13 @@ export const InteractiveLabs = () => {
     if (color1 === "transparent") return color2;
     if (color2 === "transparent") return color1;
     
-    // Simple color mixing logic
+    // Enhanced color mixing with animations
     const colors = [color1, color2];
-    if (colors.includes("#ff6b6b") && colors.includes("#4ecdc4")) return "#98fb98"; // Red + Blue = Green
-    if (colors.includes("#ff8c42") && colors.includes("#95e1d3")) return "#ffd93d"; // Orange + Light Blue = Yellow
-    return "#dda0dd"; // Default mixed color
+    if (colors.includes("#ff6b6b") && colors.includes("#4ecdc4")) return "#98fb98"; // Acid + Base = Neutralization (Green)
+    if (colors.includes("#ff8c42") && colors.includes("#95e1d3")) return "#ffd93d"; // Strong reaction (Yellow)
+    if (colors.includes("#c44569")) return "#ff69b4"; // Indicator color change
+    if (colors.includes("#a4b0be")) return "#87ceeb"; // Metal reaction (Blue)
+    return "#dda0dd"; // Default mixed color (Purple)
   };
 
   const hasReaction = (chemicals: Chemical[]): boolean => {
@@ -304,24 +306,27 @@ export const InteractiveLabs = () => {
                   key={chemical.id}
                   draggable
                   onDragStart={(e) => handleDragStart(e, chemical)}
-                  className="p-3 border border-border rounded-lg cursor-move hover:bg-accent transition-colors group"
+                  className="p-3 border border-border rounded-lg cursor-move hover:bg-accent transition-all duration-300 group hover:scale-105 hover:shadow-lg animate-fade-in"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <span className="text-2xl">{chemical.icon}</span>
+                      <span className="text-2xl group-hover:scale-125 transition-transform duration-300">{chemical.icon}</span>
                       <div>
-                        <p className="font-medium text-sm">{chemical.name}</p>
+                        <p className="font-medium text-sm group-hover:text-primary transition-colors">{chemical.name}</p>
                         <p className="text-xs text-muted-foreground">{chemical.formula}</p>
                         <p className="text-xs text-muted-foreground">{chemical.volume}ml</p>
                       </div>
                     </div>
                     <div className="flex flex-col items-end space-y-1">
-                      <Badge variant="secondary" className="text-xs capitalize">
+                      <Badge variant="secondary" className="text-xs capitalize group-hover:bg-primary group-hover:text-white transition-colors">
                         {chemical.type}
                       </Badge>
                       <div 
-                        className="w-4 h-4 rounded-full border border-border"
-                        style={{ backgroundColor: chemical.color }}
+                        className="w-4 h-4 rounded-full border border-border group-hover:animate-pulse shadow-md"
+                        style={{ 
+                          backgroundColor: chemical.color,
+                          boxShadow: `0 0 10px ${chemical.color}40`
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -363,29 +368,42 @@ export const InteractiveLabs = () => {
                   <div className="text-center">
                     <h4 className="font-medium mb-2">Beaker {beaker.id}</h4>
                     
-                    {/* Beaker Visualization */}
-                    <div className="relative mx-auto w-20 h-24 mb-4">
-                      <div className="absolute inset-0 border-2 border-gray-400 rounded-b-lg">
+                    {/* Enhanced Beaker Visualization with Animations */}
+                    <div className="relative mx-auto w-20 h-24 mb-4 group">
+                      <div className="absolute inset-0 border-2 border-gray-400 rounded-b-lg bg-white/50 backdrop-blur-sm transition-all duration-300 group-hover:scale-110">
                         {beaker.volume > 0 && (
                           <div 
-                            className="absolute bottom-0 left-0 right-0 rounded-b-lg transition-all duration-500"
+                            className="absolute bottom-0 left-0 right-0 rounded-b-lg transition-all duration-700 ease-in-out animate-fade-in"
                             style={{ 
                               height: `${(beaker.volume / 250) * 100}%`,
                               backgroundColor: beaker.color === "transparent" ? "#e0e7ff" : beaker.color,
-                              opacity: beaker.color === "transparent" ? 0.3 : 0.8
+                              opacity: beaker.color === "transparent" ? 0.3 : 0.8,
+                              boxShadow: beaker.bubbling ? `0 0 20px ${beaker.color}` : 'none'
                             }}
                           >
                             {beaker.bubbling && (
-                              <div className="absolute inset-0 animate-pulse">
-                                <div className="w-2 h-2 bg-white rounded-full absolute top-1 left-2 animate-bounce"></div>
-                                <div className="w-2 h-2 bg-white rounded-full absolute top-2 right-2 animate-bounce delay-100"></div>
-                                <div className="w-1 h-1 bg-white rounded-full absolute top-3 left-4 animate-bounce delay-200"></div>
-                              </div>
+                              <>
+                                <div className="absolute inset-0 animate-pulse">
+                                  <div className="w-2 h-2 bg-white rounded-full absolute top-1 left-2 animate-bounce shadow-lg"></div>
+                                  <div className="w-2 h-2 bg-white rounded-full absolute top-2 right-2 animate-bounce delay-100 shadow-lg"></div>
+                                  <div className="w-1 h-1 bg-white rounded-full absolute top-3 left-4 animate-bounce delay-200 shadow-lg"></div>
+                                  <div className="w-1.5 h-1.5 bg-white/80 rounded-full absolute top-4 right-3 animate-bounce shadow-lg"></div>
+                                </div>
+                                {/* Steam effect */}
+                                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-8 opacity-60">
+                                  <div className="w-1 h-4 bg-white rounded-full absolute animate-ping"></div>
+                                </div>
+                              </>
                             )}
+                            {/* Shimmer effect */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse"></div>
                           </div>
                         )}
                       </div>
-                      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 border-2 border-gray-400 border-b-0 rounded-t-md"></div>
+                      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 border-2 border-gray-400 border-b-0 rounded-t-md bg-white/30"></div>
+                      {beaker.temperature > 40 && (
+                        <ThermometerSun className="absolute -top-6 right-0 h-5 w-5 text-warning animate-pulse" />
+                      )}
                     </div>
 
                     {/* Beaker Info */}
