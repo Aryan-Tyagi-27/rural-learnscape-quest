@@ -179,16 +179,19 @@ const TeacherDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Button 
               className="h-24 flex-col space-y-2"
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = '.pdf,.doc,.docx,.ppt,.pptx';
-                input.onchange = (e) => {
+                input.onchange = (e: Event) => {
                   const file = (e.target as HTMLInputElement).files?.[0];
                   if (file) {
-                    // Simulate upload
-                    toast.success(`Uploading ${file.name}...`);
-                    setTimeout(() => toast.success('Content uploaded successfully!'), 2000);
+                    toast.loading(`Uploading ${file.name}...`);
+                    setTimeout(() => {
+                      toast.dismiss();
+                      toast.success('Content uploaded successfully!');
+                    }, 1500);
                   }
                 };
                 input.click();
@@ -201,7 +204,10 @@ const TeacherDashboard = () => {
             <Button 
               variant="outline" 
               className="h-24 flex-col space-y-2"
-              onClick={() => toast.success('Rewards assigned to top performers!')}
+              onClick={(e) => {
+                e.preventDefault();
+                toast.success('Rewards assigned to top 5 performers!');
+              }}
             >
               <Award className="h-6 w-6" />
               <span>Assign Rewards</span>
@@ -210,7 +216,10 @@ const TeacherDashboard = () => {
             <Button 
               variant="outline" 
               className="h-24 flex-col space-y-2"
-              onClick={() => toast.info('Assignment creation portal opened!')}
+              onClick={(e) => {
+                e.preventDefault();
+                toast.info('Assignment creation portal opened!');
+              }}
             >
               <FileText className="h-6 w-6" />
               <span>Create Assignment</span>
@@ -219,7 +228,10 @@ const TeacherDashboard = () => {
             <Button 
               variant="outline" 
               className="h-24 flex-col space-y-2"
-              onClick={() => toast.info('Course assignment panel opened!')}
+              onClick={(e) => {
+                e.preventDefault();
+                toast.info('Course assignment panel opened!');
+              }}
             >
               <BookOpen className="h-6 w-6" />
               <span>Assign Courses</span>
@@ -252,7 +264,14 @@ const TeacherDashboard = () => {
                 <Progress value={course.completion} className="h-2" />
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-xs text-muted-foreground">{course.completion}% completed</span>
-                  <Button size="sm" variant="ghost">
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toast.info(`Viewing details for ${course.name}`);
+                    }}
+                  >
                     View Details
                   </Button>
                 </div>
@@ -320,11 +339,24 @@ const TeacherDashboard = () => {
             </div>
             
             <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toast.info('Opening schedule manager...');
+                }}
+              >
                 <Calendar className="h-4 w-4 mr-2" />
                 Schedule
               </Button>
-              <Button size="sm">
+              <Button 
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toast.info('Opening settings panel...');
+                }}
+              >
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </Button>

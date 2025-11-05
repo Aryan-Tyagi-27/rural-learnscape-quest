@@ -370,39 +370,49 @@ export const InteractiveLabs = () => {
                     
                     {/* Enhanced Beaker Visualization with Animations */}
                     <div className="relative mx-auto w-20 h-24 mb-4 group">
-                      <div className="absolute inset-0 border-2 border-gray-400 rounded-b-lg bg-white/50 backdrop-blur-sm transition-all duration-300 group-hover:scale-110">
+                      <div className="absolute inset-0 border-2 border-gray-400 rounded-b-lg bg-white/50 backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
                         {beaker.volume > 0 && (
                           <div 
                             className="absolute bottom-0 left-0 right-0 rounded-b-lg transition-all duration-700 ease-in-out animate-fade-in"
                             style={{ 
                               height: `${(beaker.volume / 250) * 100}%`,
                               backgroundColor: beaker.color === "transparent" ? "#e0e7ff" : beaker.color,
-                              opacity: beaker.color === "transparent" ? 0.3 : 0.8,
-                              boxShadow: beaker.bubbling ? `0 0 20px ${beaker.color}` : 'none'
+                              opacity: beaker.color === "transparent" ? 0.3 : 0.85,
+                              boxShadow: beaker.bubbling ? `0 0 25px ${beaker.color}, inset 0 0 15px rgba(255,255,255,0.3)` : 'inset 0 0 10px rgba(255,255,255,0.2)'
                             }}
                           >
                             {beaker.bubbling && (
                               <>
-                                <div className="absolute inset-0 animate-pulse">
+                                {/* Enhanced bubbling effect */}
+                                <div className="absolute inset-0">
                                   <div className="w-2 h-2 bg-white rounded-full absolute top-1 left-2 animate-bounce shadow-lg"></div>
-                                  <div className="w-2 h-2 bg-white rounded-full absolute top-2 right-2 animate-bounce delay-100 shadow-lg"></div>
-                                  <div className="w-1 h-1 bg-white rounded-full absolute top-3 left-4 animate-bounce delay-200 shadow-lg"></div>
-                                  <div className="w-1.5 h-1.5 bg-white/80 rounded-full absolute top-4 right-3 animate-bounce shadow-lg"></div>
+                                  <div className="w-2 h-2 bg-white rounded-full absolute top-2 right-2 animate-bounce shadow-lg" style={{ animationDelay: '0.1s' }}></div>
+                                  <div className="w-1 h-1 bg-white rounded-full absolute top-3 left-4 animate-bounce shadow-lg" style={{ animationDelay: '0.2s' }}></div>
+                                  <div className="w-1.5 h-1.5 bg-white/80 rounded-full absolute top-4 right-3 animate-bounce shadow-lg" style={{ animationDelay: '0.15s' }}></div>
+                                  <div className="w-1 h-1 bg-white/70 rounded-full absolute top-2 left-1/2 animate-bounce shadow-lg" style={{ animationDelay: '0.3s' }}></div>
                                 </div>
-                                {/* Steam effect */}
-                                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-8 opacity-60">
-                                  <div className="w-1 h-4 bg-white rounded-full absolute animate-ping"></div>
+                                {/* Enhanced steam effect */}
+                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-10">
+                                  <div className="w-1 h-6 bg-white/60 rounded-full absolute left-0 animate-ping"></div>
+                                  <div className="w-1 h-6 bg-white/40 rounded-full absolute left-2 animate-ping" style={{ animationDelay: '0.5s' }}></div>
                                 </div>
+                                {/* Glow effect during reaction */}
+                                <div className="absolute inset-0 rounded-b-lg animate-pulse" style={{ boxShadow: `inset 0 0 20px ${beaker.color}` }}></div>
                               </>
                             )}
-                            {/* Shimmer effect */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse"></div>
+                            {/* Enhanced shimmer effect */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/30 to-transparent animate-pulse"></div>
+                            {/* Wave animation at surface */}
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-white/20 animate-pulse"></div>
                           </div>
                         )}
                       </div>
                       <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 border-2 border-gray-400 border-b-0 rounded-t-md bg-white/30"></div>
                       {beaker.temperature > 40 && (
-                        <ThermometerSun className="absolute -top-6 right-0 h-5 w-5 text-warning animate-pulse" />
+                        <div className="absolute -top-8 right-0 flex items-center space-x-1 bg-warning/20 px-2 py-1 rounded-md">
+                          <ThermometerSun className="h-4 w-4 text-warning animate-pulse" />
+                          <span className="text-xs font-bold text-warning">{Math.round(beaker.temperature)}°C</span>
+                        </div>
                       )}
                     </div>
 
