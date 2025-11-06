@@ -202,6 +202,26 @@ const StudentDashboard = () => {
 
   const renderCourses = () => (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Featured Lesson</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="aspect-video rounded-lg overflow-hidden bg-black">
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/FSyAehMdpyI"
+              title="Chemistry Fundamentals - Featured Lesson"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
           <Card key={course.id} className="hover:shadow-lg transition-shadow">

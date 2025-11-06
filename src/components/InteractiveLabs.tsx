@@ -39,6 +39,8 @@ interface BeakerState {
   volume: number;
   color: string;
   bubbling: boolean;
+  lastEquation?: string;
+  lastReactionName?: string;
 }
 
 export const InteractiveLabs = () => {
@@ -148,7 +150,9 @@ export const InteractiveLabs = () => {
             ...b,
             temperature: b.temperature + Math.random() * 30 + 10, // Temperature increase
             bubbling: true,
-            color: reaction.color || b.color
+            color: reaction.color || b.color,
+            lastEquation: reaction.equation,
+            lastReactionName: reaction.name
           };
         }
         return b;
@@ -162,16 +166,16 @@ export const InteractiveLabs = () => {
     const formulas = chemicals.map(c => c.formula).sort();
     
     if (formulas.includes("HCl") && formulas.includes("NaOH")) {
-      return { name: "Acid-Base Neutralization", color: "#98fb98", product: "NaCl + H₂O" };
+      return { name: "Acid-Base Neutralization", color: "#98fb98", product: "NaCl + H₂O", equation: "HCl + NaOH → NaCl + H₂O" };
     }
     if (formulas.includes("HCl") && formulas.includes("Zn")) {
-      return { name: "Metal-Acid Reaction", color: "#87ceeb", product: "ZnCl₂ + H₂" };
+      return { name: "Metal-Acid Reaction", color: "#87ceeb", product: "ZnCl₂ + H₂", equation: "Zn + 2HCl → ZnCl₂ + H₂" };
     }
     if (formulas.includes("CuSO₄") && formulas.includes("H₂O")) {
-      return { name: "Salt Dissolution", color: "#4169e1", product: "Cu²⁺ + SO₄²⁻" };
+      return { name: "Salt Dissolution", color: "#4169e1", product: "Cu²⁺ + SO₄²⁻", equation: "CuSO₄ + H₂O → Cu²⁺ + SO₄²⁻" };
     }
     
-    return { name: "Mixed Solution", color: "#dda0dd", product: "Complex mixture" };
+    return { name: "Mixed Solution", color: "#dda0dd", product: "Complex mixture", equation: "Mixture - no simple balanced equation" };
   };
 
   const resetBeaker = (beakerId: number) => {
@@ -184,7 +188,9 @@ export const InteractiveLabs = () => {
             temperature: 25,
             volume: 0,
             color: "transparent",
-            bubbling: false
+            bubbling: false,
+            lastEquation: undefined,
+            lastReactionName: undefined
           };
         }
         return beaker;
@@ -201,7 +207,9 @@ export const InteractiveLabs = () => {
         temperature: 25,
         volume: 0,
         color: "transparent",
-        bubbling: false
+        bubbling: false,
+        lastEquation: undefined,
+        lastReactionName: undefined
       }))
     );
     toast.info("All beakers cleaned and reset");
@@ -441,6 +449,14 @@ export const InteractiveLabs = () => {
                             {chemical.formula}
                           </Badge>
                         ))}
+                      </div>
+                    )}
+
+                    {/* Equation (if available) */}
+                    {beaker.lastEquation && (
+                      <div className="mt-3 p-2 bg-primary/5 border border-primary/20 rounded animate-fade-in">
+                        <p className="text-[10px] uppercase text-muted-foreground mb-1">Chemical Equation</p>
+                        <p className="text-sm font-mono font-semibold text-primary text-center">{beaker.lastEquation}</p>
                       </div>
                     )}
 
