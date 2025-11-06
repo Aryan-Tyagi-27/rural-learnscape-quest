@@ -34,6 +34,7 @@ interface Reaction {
 export const VirtualLab = () => {
   const [selectedChemicals, setSelectedChemicals] = useState<Chemical[]>([]);
   const [reactionResult, setReactionResult] = useState<string | null>(null);
+  const [reactionEquation, setReactionEquation] = useState<string | null>(null);
   const [experiments, setExperiments] = useState<number>(0);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
@@ -97,6 +98,7 @@ export const VirtualLab = () => {
 
     if (reaction) {
       setReactionResult(reaction.description);
+      setReactionEquation(reaction.description);
       setExperiments(experiments + 1);
       
       if (reaction.safetyLevel === "safe") {
@@ -106,6 +108,7 @@ export const VirtualLab = () => {
       }
     } else {
       setReactionResult("No reaction observed. Try different chemical combinations.");
+      setReactionEquation(null);
       toast.info("No reaction occurred with these chemicals");
     }
   };
@@ -113,6 +116,7 @@ export const VirtualLab = () => {
   const resetExperiment = () => {
     setSelectedChemicals([]);
     setReactionResult(null);
+    setReactionEquation(null);
     toast.info("Lab equipment cleaned and reset");
   };
 
@@ -258,14 +262,27 @@ export const VirtualLab = () => {
 
             {/* Reaction Result */}
             {reactionResult && (
-              <div className="mt-4 p-4 bg-success/10 border border-success/20 rounded-lg">
-                <div className="flex items-start space-x-2">
-                  <CheckCircle className="h-5 w-5 text-success mt-0.5" />
-                  <div>
-                    <p className="font-medium text-success">Experiment Result</p>
-                    <p className="text-sm text-foreground mt-1">{reactionResult}</p>
+              <div className="mt-4 space-y-3">
+                <div className="p-4 bg-success/10 border border-success/20 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <CheckCircle className="h-5 w-5 text-success mt-0.5" />
+                    <div>
+                      <p className="font-medium text-success">Experiment Result</p>
+                      <p className="text-sm text-foreground mt-1">{reactionResult}</p>
+                    </div>
                   </div>
                 </div>
+                
+                {reactionEquation && (
+                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg animate-fade-in">
+                    <div className="flex items-center justify-center">
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Chemical Equation</p>
+                        <p className="text-lg font-mono font-bold text-primary">{reactionEquation}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Trophy, 
   Target, 
@@ -56,8 +57,16 @@ const courses = [
 
 const StudentDashboard = () => {
   const [currentView, setCurrentView] = useState("dashboard");
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<typeof courses[0] | null>(null);
   const { signOut, profile } = useAuth();
   const currentStudent = mockStudents[0]; // Current user
+
+  const handleContinueCourse = (course: typeof courses[0]) => {
+    setSelectedCourse(course);
+    setVideoDialogOpen(true);
+    toast.success(`Opening ${course.title} lesson`);
+  };
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -202,7 +211,7 @@ const StudentDashboard = () => {
                   <CardTitle className="text-lg">{course.title}</CardTitle>
                   <Badge variant="outline" className="mt-2">{course.category}</Badge>
                 </div>
-                <Button size="sm" className="shrink-0">
+                <Button size="sm" className="shrink-0" onClick={() => handleContinueCourse(course)}>
                   <Play className="h-4 w-4 mr-1" />
                   Continue
                 </Button>
@@ -275,6 +284,34 @@ const StudentDashboard = () => {
         <StudentSidebar currentView={currentView} setCurrentView={setCurrentView} />
         
         <main className="flex-1 p-6">
+          {/* Video Dialog */}
+          <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>{selectedCourse?.title} - Lesson Video</DialogTitle>
+              </DialogHeader>
+              <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="Educational Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">Lesson Progress</h3>
+                <Progress value={selectedCourse?.progress || 0} className="h-2" />
+                <p className="text-sm text-muted-foreground">
+                  {selectedCourse?.completedLessons}/{selectedCourse?.totalLessons} lessons completed
+                </p>
+              </div>
+            </DialogContent>
+          </Dialog>
+        
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
