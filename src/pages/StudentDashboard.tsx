@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Trophy, 
   Target, 
@@ -28,9 +29,11 @@ import { GamificationTracker } from "@/components/GamificationTracker";
 import { EducationalReels } from "@/components/EducationalReels";
 import { InteractiveLabs } from "@/components/InteractiveLabs";
 import { useAuth } from "@/hooks/useAuth";
+import { useCourses } from "@/hooks/useCourses";
+import { useBadges } from "@/hooks/useBadges";
 import { toast } from "sonner";
 
-// Hardcoded student data for gamification
+// Hardcoded student data for gamification (will be dynamic later)
 const mockStudents = [
   { id: 1, name: "Aman Kumar", points: 2850, avatar: "AK", streak: 15, badges: 12, rank: 1 },
   { id: 2, name: "Priya Sharma", points: 2720, avatar: "PS", streak: 22, badges: 10, rank: 2 },
@@ -39,33 +42,40 @@ const mockStudents = [
   { id: 5, name: "Arjun Verma", points: 2400, avatar: "AV", streak: 12, badges: 8, rank: 5 },
 ];
 
-const studentBadges = [
-  { name: "Chemistry Explorer", icon: "🧪", earned: true, points: 100 },
-  { name: "Lab Master", icon: "⚗️", earned: true, points: 200 },
-  { name: "Quiz Champion", icon: "🏆", earned: true, points: 150 },
-  { name: "Streak Master", icon: "🔥", earned: true, points: 300 },
-  { name: "Study Buddy", icon: "👥", earned: false, points: 250 },
-  { name: "Course Completer", icon: "✅", earned: false, points: 400 },
-];
-
-const courses = [
-  { id: 1, title: "Chemistry Fundamentals", progress: 75, totalLessons: 20, completedLessons: 15, category: "Science" },
-  { id: 2, title: "Mathematics Basics", progress: 45, totalLessons: 25, completedLessons: 11, category: "Math" },
-  { id: 3, title: "Physics Introduction", progress: 30, totalLessons: 18, completedLessons: 5, category: "Science" },
-  { id: 4, title: "Environmental Science", progress: 90, totalLessons: 15, completedLessons: 13, category: "Science" },
-];
+interface CourseType {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  difficulty_level: string;
+  content: {
+    modules?: { title: string; duration: number }[];
+    videoUrl?: string;
+  } | null;
+  progress?: number;
+  completedLessons?: number;
+  totalLessons?: number;
+}
 
 const StudentDashboard = () => {
   const [currentView, setCurrentView] = useState("dashboard");
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<typeof courses[0] | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
   const { signOut, profile } = useAuth();
+  const { courses, loading: coursesLoading, updateProgress } = useCourses();
+  const { badges, earnedBadges, loading: badgesLoading } = useBadges();
   const currentStudent = mockStudents[0]; // Current user
 
-  const handleContinueCourse = (course: typeof courses[0]) => {
+  const handleContinueCourse = (course: CourseType) => {
     setSelectedCourse(course);
     setVideoDialogOpen(true);
     toast.success(`Opening ${course.title} lesson`);
+    
+    // Simulate progress update
+    if (course.progress !== undefined && course.progress < 100) {
+      const newProgress = Math.min(100, (course.progress || 0) + 10);
+      updateProgress(course.id, newProgress);
+    }
   };
 
   const renderDashboard = () => (
@@ -125,18 +135,28 @@ const StudentDashboard = () => {
             <CardTitle>Current Courses</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {courses.slice(0, 3).map((course) => (
-              <div key={course.id} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-medium">{course.title}</h4>
-                  <Badge variant="secondary">{course.progress}%</Badge>
+            {coursesLoading ? (
+              <>
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+              </>
+            ) : courses.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">No courses available yet</p>
+            ) : (
+              courses.slice(0, 3).map((course) => (
+                <div key={course.id} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">{course.title}</h4>
+                    <Badge variant="secondary">{course.progress || 0}%</Badge>
+                  </div>
+                  <Progress value={course.progress || 0} className="h-2" />
+                  <p className="text-sm text-muted-foreground">
+                    {course.completedLessons || 0}/{course.totalLessons || 0} lessons completed
+                  </p>
                 </div>
-                <Progress value={course.progress} className="h-2" />
-                <p className="text-sm text-muted-foreground">
-                  {course.completedLessons}/{course.totalLessons} lessons completed
-                </p>
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -146,13 +166,24 @@ const StudentDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3">
-              {studentBadges.filter(badge => badge.earned).slice(0, 4).map((badge, index) => (
-                <div key={index} className="text-center p-3 bg-accent rounded-lg">
-                  <div className="text-2xl mb-2">{badge.icon}</div>
-                  <p className="font-medium text-sm">{badge.name}</p>
-                  <p className="text-xs text-muted-foreground">+{badge.points} pts</p>
-                </div>
-              ))}
+              {badgesLoading ? (
+                <>
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                </>
+              ) : earnedBadges.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4 col-span-2">
+                  Complete activities to earn badges!
+                </p>
+              ) : (
+                earnedBadges.slice(0, 4).map((badge) => (
+                  <div key={badge.id} className="text-center p-3 bg-accent rounded-lg">
+                    <div className="text-2xl mb-2">{badge.icon || '🏆'}</div>
+                    <p className="font-medium text-sm">{badge.name}</p>
+                    <p className="text-xs text-muted-foreground">+{badge.points_required || 0} pts</p>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -222,31 +253,59 @@ const StudentDashboard = () => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <Card key={course.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{course.title}</CardTitle>
-                  <Badge variant="outline" className="mt-2">{course.category}</Badge>
+      {coursesLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/4 mt-2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-2 w-full mb-3" />
+                <Skeleton className="h-4 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : courses.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-8">
+            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No courses available yet. Check back soon!</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {courses.map((course) => (
+            <Card key={course.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-lg">{course.title}</CardTitle>
+                    <div className="flex gap-2 mt-2">
+                      <Badge variant="outline">{course.category}</Badge>
+                      <Badge variant="secondary">{course.difficulty_level}</Badge>
+                    </div>
+                  </div>
+                  <Button size="sm" className="shrink-0" onClick={() => handleContinueCourse(course)}>
+                    <Play className="h-4 w-4 mr-1" />
+                    Continue
+                  </Button>
                 </div>
-                <Button size="sm" className="shrink-0" onClick={() => handleContinueCourse(course)}>
-                  <Play className="h-4 w-4 mr-1" />
-                  Continue
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Progress value={course.progress} className="h-2 mb-3" />
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>{course.completedLessons}/{course.totalLessons} lessons</span>
-                <span>{course.progress}% complete</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{course.description}</p>
+                <Progress value={course.progress || 0} className="h-2 mb-3" />
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>{course.completedLessons || 0}/{course.totalLessons || 0} lessons</span>
+                  <span>{course.progress || 0}% complete</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 
@@ -264,7 +323,7 @@ const StudentDashboard = () => {
         <Card className="text-center">
           <CardContent className="p-6">
             <Award className="h-8 w-8 text-gamify-purple mx-auto mb-2" />
-            <div className="text-2xl font-bold">{studentBadges.filter(b => b.earned).length}</div>
+            <div className="text-2xl font-bold">{earnedBadges.length}</div>
             <p className="text-muted-foreground">Badges Earned</p>
           </CardContent>
         </Card>
@@ -283,16 +342,26 @@ const StudentDashboard = () => {
           <CardTitle>Badge Collection</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {studentBadges.map((badge, index) => (
-              <div key={index} className={`text-center p-4 rounded-lg border-2 ${badge.earned ? 'bg-accent border-primary/20' : 'bg-gray-50 border-gray-200 opacity-50'}`}>
-                <div className="text-3xl mb-2">{badge.icon}</div>
-                <p className="font-medium text-sm">{badge.name}</p>
-                <p className="text-xs text-muted-foreground">{badge.points} points</p>
-                {badge.earned && <Badge className="mt-2" variant="secondary">Earned!</Badge>}
-              </div>
-            ))}
-          </div>
+          {badgesLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-32 w-full" />
+              ))}
+            </div>
+          ) : badges.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">No badges available yet</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {badges.map((badge) => (
+                <div key={badge.id} className={`text-center p-4 rounded-lg border-2 ${badge.earned ? 'bg-accent border-primary/20' : 'bg-muted/30 border-border opacity-60'}`}>
+                  <div className="text-3xl mb-2">{badge.icon || '🏅'}</div>
+                  <p className="font-medium text-sm">{badge.name}</p>
+                  <p className="text-xs text-muted-foreground">{badge.points_required || 0} points</p>
+                  {badge.earned && <Badge className="mt-2" variant="secondary">Earned!</Badge>}
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
