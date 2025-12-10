@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Trophy, 
   Target, 
@@ -20,7 +21,8 @@ import {
   Play,
   Download,
   Settings,
-  LogOut
+  LogOut,
+  CheckCircle
 } from "lucide-react";
 import { StudentSidebar } from "@/components/StudentSidebar";
 import { VirtualLab } from "@/components/VirtualLab";
@@ -31,16 +33,9 @@ import { InteractiveLabs } from "@/components/InteractiveLabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useCourses } from "@/hooks/useCourses";
 import { useBadges } from "@/hooks/useBadges";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
+import { useStudentStats } from "@/hooks/useStudentStats";
 import { toast } from "sonner";
-
-// Hardcoded student data for gamification (will be dynamic later)
-const mockStudents = [
-  { id: 1, name: "Aman Kumar", points: 2850, avatar: "AK", streak: 15, badges: 12, rank: 1 },
-  { id: 2, name: "Priya Sharma", points: 2720, avatar: "PS", streak: 22, badges: 10, rank: 2 },
-  { id: 3, name: "Rahul Singh", points: 2650, avatar: "RS", streak: 8, badges: 9, rank: 3 },
-  { id: 4, name: "Neha Patel", points: 2580, avatar: "NP", streak: 18, badges: 11, rank: 4 },
-  { id: 5, name: "Arjun Verma", points: 2400, avatar: "AV", streak: 12, badges: 8, rank: 5 },
-];
 
 interface CourseType {
   id: string;
@@ -62,9 +57,15 @@ const StudentDashboard = () => {
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
   const { signOut, profile } = useAuth();
-  const { courses, loading: coursesLoading, updateProgress } = useCourses();
+  const { courses, loading: coursesLoading, updateProgress, markCourseComplete } = useCourses();
   const { badges, earnedBadges, loading: badgesLoading } = useBadges();
-  const currentStudent = mockStudents[0]; // Current user
+  const { leaderboard, currentUserStats, loading: leaderboardLoading } = useLeaderboard();
+  const { stats, updateStreak } = useStudentStats();
+
+  // Update streak on component mount
+  useEffect(() => {
+    updateStreak();
+  }, []);
 
   const handleContinueCourse = (course: CourseType) => {
     setSelectedCourse(course);
@@ -92,18 +93,18 @@ const StudentDashboard = () => {
                 <div className="flex items-center mt-4 space-x-4">
                   <div className="flex items-center space-x-2">
                     <Flame className="h-5 w-5 text-gamify-orange" />
-                    <span>{currentStudent.streak} day streak</span>
+                    <span>{stats?.streak || 0} day streak</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Trophy className="h-5 w-5 text-gamify-gold" />
-                    <span>Rank #{currentStudent.rank}</span>
+                    <span>Rank #{currentUserStats?.rank || '-'}</span>
                   </div>
                 </div>
               </div>
               <Avatar className="h-20 w-20 border-4 border-white/20">
-                <AvatarImage src="/placeholder.svg" />
+                <AvatarImage src={profile?.avatar_url || "/placeholder.svg"} />
                 <AvatarFallback className="text-2xl bg-white/20">
-                  {currentStudent.avatar}
+                  {profile?.full_name?.split(' ').map((n: string) => n[0]).join('') || 'S'}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -119,10 +120,10 @@ const StudentDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <div className="text-3xl font-bold text-primary mb-2">{currentStudent.points.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-primary mb-2">{(stats?.totalPoints || 0).toLocaleString()}</div>
             <div className="flex items-center justify-center space-x-1 text-green-600">
               <TrendingUp className="h-4 w-4" />
-              <span className="text-sm">+125 this week</span>
+              <span className="text-sm">+{stats?.weeklyProgress || 0} this week</span>
             </div>
           </CardContent>
         </Card>
@@ -147,7 +148,18 @@ const StudentDashboard = () => {
               courses.slice(0, 3).map((course) => (
                 <div key={course.id} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <h4 className="font-medium">{course.title}</h4>
+                    <div className="flex items-center gap-2">
+                      <Checkbox 
+                        checked={(course.progress || 0) >= 100}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            markCourseComplete(course.id);
+                            toast.success(`${course.title} marked as complete! +100 points`);
+                          }
+                        }}
+                      />
+                      <h4 className="font-medium">{course.title}</h4>
+                    </div>
                     <Badge variant="secondary">{course.progress || 0}%</Badge>
                   </div>
                   <Progress value={course.progress || 0} className="h-2" />
@@ -199,32 +211,43 @@ const StudentDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {mockStudents.slice(0, 5).map((student, index) => (
-              <div key={student.id} className={`flex items-center justify-between p-3 rounded-lg ${student.id === currentStudent.id ? 'bg-primary/10 border border-primary/20' : 'bg-accent'}`}>
-                <div className="flex items-center space-x-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${index === 0 ? 'bg-gamify-gold text-white' : index === 1 ? 'bg-gray-400 text-white' : index === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200'}`}>
-                    {index + 1}
+            {leaderboardLoading ? (
+              <>
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+              </>
+            ) : leaderboard.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">No students on leaderboard yet</p>
+            ) : (
+              leaderboard.slice(0, 5).map((student, index) => (
+                <div key={student.id} className={`flex items-center justify-between p-3 rounded-lg ${student.isCurrentUser ? 'bg-primary/10 border border-primary/20' : 'bg-accent'}`}>
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${index === 0 ? 'bg-gamify-gold text-white' : index === 1 ? 'bg-gray-400 text-white' : index === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200'}`}>
+                      {index + 1}
+                    </div>
+                    <Avatar>
+                      <AvatarImage src={student.avatar_url || undefined} />
+                      <AvatarFallback>{student.full_name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{student.full_name} {student.isCurrentUser && '(You)'}</p>
+                      <p className="text-sm text-muted-foreground">{student.total_points.toLocaleString()} points</p>
+                    </div>
                   </div>
-                  <Avatar>
-                    <AvatarFallback>{student.avatar}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{student.name} {student.id === currentStudent.id && '(You)'}</p>
-                    <p className="text-sm text-muted-foreground">{student.points.toLocaleString()} points</p>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-1">
+                      <Flame className="h-4 w-4 text-gamify-orange" />
+                      <span className="text-sm">{student.streak}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Award className="h-4 w-4 text-gamify-gold" />
+                      <span className="text-sm">{student.badges_count}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-1">
-                    <Flame className="h-4 w-4 text-gamify-orange" />
-                    <span className="text-sm">{student.streak}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Award className="h-4 w-4 text-gamify-gold" />
-                    <span className="text-sm">{student.badges}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
@@ -316,7 +339,7 @@ const StudentDashboard = () => {
         <Card className="text-center">
           <CardContent className="p-6">
             <Star className="h-8 w-8 text-gamify-gold mx-auto mb-2" />
-            <div className="text-2xl font-bold">{currentStudent.points.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{(stats?.totalPoints || 0).toLocaleString()}</div>
             <p className="text-muted-foreground">Total Points</p>
           </CardContent>
         </Card>
@@ -330,7 +353,7 @@ const StudentDashboard = () => {
         <Card className="text-center">
           <CardContent className="p-6">
             <Flame className="h-8 w-8 text-gamify-orange mx-auto mb-2" />
-            <div className="text-2xl font-bold">{currentStudent.streak}</div>
+            <div className="text-2xl font-bold">{stats?.streak || 0}</div>
             <p className="text-muted-foreground">Day Streak</p>
           </CardContent>
         </Card>

@@ -93,10 +93,13 @@ export const useCourses = () => {
     try {
       const { data: existing } = await supabase
         .from('student_progress')
-        .select('id')
+        .select('id, points_earned')
         .eq('student_id', user.id)
         .eq('course_id', courseId)
         .maybeSingle();
+
+      // Calculate points based on progress (10 points per 10% progress)
+      const pointsForProgress = Math.floor(progressPercentage / 10) * 10;
 
       if (existing) {
         await supabase
@@ -104,7 +107,8 @@ export const useCourses = () => {
           .update({ 
             progress_percentage: progressPercentage,
             completed: progressPercentage >= 100,
-            last_accessed: new Date().toISOString()
+            last_accessed: new Date().toISOString(),
+            points_earned: pointsForProgress
           })
           .eq('id', existing.id);
       } else {
@@ -114,7 +118,8 @@ export const useCourses = () => {
             student_id: user.id,
             course_id: courseId,
             progress_percentage: progressPercentage,
-            completed: progressPercentage >= 100
+            completed: progressPercentage >= 100,
+            points_earned: pointsForProgress
           });
       }
 
@@ -125,5 +130,9 @@ export const useCourses = () => {
     }
   };
 
-  return { courses, loading, error, refetch: fetchCourses, updateProgress };
+  const markCourseComplete = async (courseId: string) => {
+    await updateProgress(courseId, 100);
+  };
+
+  return { courses, loading, error, refetch: fetchCourses, updateProgress, markCourseComplete };
 };
